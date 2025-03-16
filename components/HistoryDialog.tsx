@@ -60,7 +60,6 @@ export default function HistoryDialog({ open, onClose, onRedraw }: HistoryDialog
     }
     const times = selectedIds.length / 3;
     alert(`你選取了 ${selectedIds.length} 個獎勵，兌換 ${times} 次重抽機會！`);
-    // 這邊可以呼叫 Home 裡的抽獎函式 or 其他邏輯
     onRedraw(times);
     dispatch(removeRewards(selectedIds));
     setSelectedIds([]);
@@ -89,7 +88,7 @@ export default function HistoryDialog({ open, onClose, onRedraw }: HistoryDialog
     const newSelectedIds = history.slice(0, adjustedCount).map((reward) => reward.id)
     setSelectedIds(newSelectedIds);
     
-    alert(`已自動選取 ${adjustedCount} 個獎勵！`);
+    // alert(`已自動選取 ${adjustedCount} 個獎勵！`);
   };
 
   return (

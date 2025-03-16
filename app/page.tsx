@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Typography, Stack, IconButton, styled, Button } from "@mui/material";
+import { Box, Typography, Stack, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Grid2 from "@mui/material/Grid2"; 
 
@@ -15,6 +15,7 @@ import { incrementSeal } from "@/store/sealSlice";
 import ConfirmDialog from "@/components/ConfirmDialog"; 
 import ResultDialog from "@/components/ResultDialog";
 import HistoryDialog from "@/components/HistoryDialog";
+import FancyButton from "@/components/FancyButton";
 
 
 const rewards = [
@@ -34,39 +35,6 @@ const sealRewards = [
   {level: 2, reward: "很有個性的按鈕禮包", image: "/images/sealsRewards234.png"},
   {level: 1, reward: "魔法水晶x10", image: "/images/sealsRewards1.png"},
 ];
-
-const FancyButton = styled(Button)(() => ({
-  // 基本外觀
-  backgroundColor: "#ffd782",
-  borderRadius: "60px",  
-  border: "2px solid #e6b749",
-  color: "#4f2f00",
-  padding: 25,
-  fontWeight: "bold",
-  fontSize: 30,
-  cursor: "pointer",
-  // 陰影
-  boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-  // 移除預設按鈕的外框
-  outline: "none",
-  borderStyle: "solid",
-  
-  // 使它在行內元素時看起來更像按鈕
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-
-  // Hover 效果
-  "&:hover": {
-    backgroundColor: "#ffe9b5",
-  },
-
-  // disabled 狀態
-  "&:disabled": {
-    opacity: 0.6,
-    cursor: "not-allowed",
-  },
-}));
 
 export default function Home() {
   // Redux dispatch，用來呼叫 reducer actions
@@ -235,28 +203,28 @@ export default function Home() {
         </Box>
 
         {/* 抽獎按鈕 */}
-        <Stack direction="row" sx={{ position: "absolute", bottom: 80 }}>
+        <Stack direction="row" sx={{ position: "absolute", bottom: 80, left: 340 }}>
           <FancyButton
             onClick={() => handleDraw(1)}
             disabled={coupons < singleDrawCost}
+            sx={{ mx: 4}}
           >
             抽1次 {singleDrawCost} 點券
           </FancyButton>
           <FancyButton
             onClick={() => handleDraw(10)}
             disabled={coupons < tenDrawCost}
-            sx={{ ml: 6}}
+            sx={{ mx: 4}}
           >
             抽10次 {tenDrawCost} 點券
           </FancyButton>
           <FancyButton
             onClick={() => setOpenHistory(true)}
             sx={{
-              mx: 20,
-              backgroundColor: "transparent",
               color: "#fff",
-              borderColor: "#fff",
-            }}
+              background: "linear-gradient(to bottom, rgba(0, 31, 65, 1), rgba(0, 31, 65, 0.6))", //透明背景
+              ml: 8,
+            }}            
           >
             抽獎歷史
           </FancyButton>
