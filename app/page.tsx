@@ -19,13 +19,13 @@ import FancyButton from "@/components/FancyButton";
 
 
 const rewards = [
-  { name:"印記", probability: 0.0026 },
-  { name:"傳說對決的嘲笑-1天", probability: 0.266 },
-  { name:"傳說對決的嘲笑-3天", probability: 0.1463 },
-  { name:"傳說對決的嘲笑-7天", probability: 0.0864 },
-  { name:"葛瑞納的擊殺-1天", probability: 0.266 },
-  { name:"葛瑞納的擊殺-3天", probability: 0.1463 },
-  { name:"葛瑞納的擊殺-7天", probability: 0.0864 },
+  { name:"印記", probability: 0.0026, image: "/images/seal.png" },
+  { name:"傳說對決的嘲笑-1天", probability: 0.266, image: "/images/rewardsA.png" },
+  { name:"傳說對決的嘲笑-3天", probability: 0.1463, image: "/images/rewardsA.png" },
+  { name:"傳說對決的嘲笑-7天", probability: 0.0864, image: "/images/rewardsA.png" },
+  { name:"葛瑞納的擊殺-1天", probability: 0.266, image: "/images/rewardsB.png" },
+  { name:"葛瑞納的擊殺-3天", probability: 0.1463, image: "/images/rewardsB.png" },
+  { name:"葛瑞納的擊殺-7天", probability: 0.0864, image: "/images/rewardsB.png" },
 ];
 
 const sealRewards = [
@@ -46,9 +46,11 @@ export default function Home() {
   const [openResult, setOpenResult] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
   
-  const [multiRewards, setMultiRewards] = useState<string[]>([]);
+  const [multiRewards, setMultiRewards] = useState<{ name: string; image: string }[]>([]);
   const [drawCount, setDrawCount] = useState(1);
-  const [selectedSealReward, setSelectedSealReward] = useState<string | null>(null); // 用於顯示印記獎勵彈窗
+
+  const [collectedSealReward, setCollectedSealReward] = useState<{ name: string; image: string } | null>(null); 
+  const [claimedSeals, setClaimedSeals] = useState<number[]>([]);
 
   const skipConfirm = typeof window !== "undefined" && localStorage.getItem("skipConfirm") === "true";
   
@@ -61,54 +63,61 @@ export default function Home() {
   const tenDrawCost = 450;
 
   //抽獎
-  const handleDraw = (count:number) => {
-    if(!skipConfirm && !openConfirm) {
+  const handleDraw = (count: number) => {
+    if (!skipConfirm && !openConfirm) {
       setDrawCount(count);
       setOpenConfirm(true);
       return;
-    };
-
+    }
+  
     const cost = count === 1 ? singleDrawCost : tenDrawCost;
-
-    if(coupons < cost) {
+    if (coupons < cost) {
       alert("點券不足，請先儲值！");
       return;
     }
-    
+  
     dispatch(spendCoupons(cost));
-
-    const results:string[] = [];
-
-    for(let i = 0; i < count; i++) {
+  
+    const results: { name: string; image: string }[] = [];
+  
+    for (let i = 0; i < count; i++) {
       const random = Math.random();
       let cumulativeProbability = 0;
-      // 判斷random落在哪個獎項的機率區間，來判定抽到哪個獎項
-      // 若random = 0.15，0.15 > 0.0026(所以不是抽到這個獎項，就繼續遍歷)，0.15 < 0.2686 (0.0026 + 0.266) ，因此是抽到這個獎項
-      for(const reward of rewards) {
+  
+      for (const reward of rewards) {
         cumulativeProbability += reward.probability;
-        if(random < cumulativeProbability) {
-          results.push(reward.name);
-
-          if(reward.name === "印記") {
+        if (random < cumulativeProbability) {
+          results.push({ name: reward.name, image: reward.image });
+  
+          if (reward.name === "印記") {
             dispatch(incrementSeal());
           }
           break;
         }
       }
     }
-    setMultiRewards(results); // 更新當前抽獎結果
+  
+    setMultiRewards(results);
     setOpenConfirm(false);
-
-    // 抽到的獎項存入Redux
-    const rewardItems  = results.map((rewardName) => ({
+  
+    const rewardItems = results.map((reward) => ({
       id: crypto.randomUUID(),
-      name: rewardName,
+      name: reward.name,
+      image: reward.image,
     }));
-
-    // 存入歷史紀錄
+  
     dispatch(addRewards(rewardItems));
     setTimeout(() => setOpenResult(true), 487);
-  };
+  };  
+
+  const handleSealRewardClick = (level: number) => {
+    if (claimedSeals.includes(level)) return;
+    const reward = sealRewards.find((r) => r.level === level);
+    if (reward) {
+      setCollectedSealReward({ name: reward.reward, image: reward.image });
+      setClaimedSeals((prev) => [...prev, level]);
+    }
+  };  
 
   const handleAddCoupons = () => {
     dispatch(addCoupons(4110));
@@ -176,29 +185,66 @@ export default function Home() {
           }}
         >
           <Typography>已收集印記：{sealsCollected} / 5</Typography>
-          <Grid2 container direction="column" spacing={2} alignItems="center"  sx={{ mt: 2, }}>
-            {sealRewards.map(({level, image}) => (
-              <Box
-                key={level}
-                sx={{
-                  width: 200,
-                  display: "flex",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  textAlign: "center",
-                  opacity: sealsCollected >= level ? 1 : 0.4,
-                  cursor: sealsCollected >= level ? "pointer" : "not-allowed",
-                }}
-              >
+          <Grid2 container direction="column" spacing={2} alignItems="center" sx={{ mt: 2 }}>
+            {sealRewards.map(({ level, image }) => {
+              const isClaimed = claimedSeals.includes(level); // ✅ 檢查是否已領取
+              return (
                 <Box
-                  component="img"
-                  src={image}
-                  alt={`第${level}個印記獎勵`}
-                  sx={{ width: "50%", mb: 1 , mx: "auto"}}
-                />
-                  <Typography variant="caption">搜集{level}個印記</Typography>
-              </Box>
-            ))}
+                  key={level}
+                  sx={{
+                    position: "relative", // ✅ 讓覆蓋層相對於這個 Box
+                    width: 200,
+                    display: "flex",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    textAlign: "center",
+                    opacity: sealsCollected >= level ? 1 : 0.4, // 透明度
+                    cursor: isClaimed ? "not-allowed" : sealsCollected >= level ? "pointer" : "not-allowed", // ✅ 領取後禁止點擊
+                  }}
+                  onClick={() => {
+                    if (!isClaimed && sealsCollected >= level) {
+                      handleSealRewardClick(level);
+                    }
+                  }}
+                >
+                  {/* 原始圖片 */}
+                  <Box
+                    component="img"
+                    src={image}
+                    alt={`第${level}個印記獎勵`}
+                    sx={{
+                      width: "5.5rem",  
+                      height: "5.5rem",
+                      display: "block",
+                      mx: "auto",
+                    }}
+                  />
+                  
+                  {/* 覆蓋層，當獎勵被領取後才顯示 */}
+                  {isClaimed && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 45,
+                        width: "5.5rem",  
+                        height: "5.5rem",
+                        backgroundColor: "rgba(0, 0, 0, 0.6)", 
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      已領取
+                    </Box>
+                  )}
+                  <Typography variant="caption">收集 {level} 個印記</Typography>
+                </Box>
+              );
+            })}
           </Grid2>
         </Box>
 
@@ -249,11 +295,11 @@ export default function Home() {
         />
 
         {/* 獲得印記獎勵彈窗 */}
-        {selectedSealReward && (
+        {collectedSealReward && (
           <ResultDialog 
-            open={!!selectedSealReward}
-            onClose={() => setSelectedSealReward(null)}
-            rewards={[selectedSealReward]}
+            open={!!collectedSealReward}
+            onClose={() => setCollectedSealReward(null)}
+            rewards={[collectedSealReward]}
           />
         )}
       </Box>

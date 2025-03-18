@@ -1,43 +1,30 @@
-import { Dialog, DialogContent, DialogActions, DialogTitle, Button, Typography, Box } from "@mui/material";
-
+import { Typography, Box } from "@mui/material";
+import Image from "next/image";
+import LotteryDialog from "./LotteryDialog";
 
 interface ResultDialogProps {
   open: boolean;
   onClose: () => void;
-  rewards: string[];
+  rewards: { name: string; image: string }[];
 }
 
-export default function ResultDialog({
-  open,
-  onClose,
-  rewards,
-}: ResultDialogProps) {
-  return(
-    <>
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>🎉 恭喜 🎉</DialogTitle>
-        <DialogContent>
-        {/* Typography為文字排版元件 */}
-          <Typography variant="h6">您獲得了以下獎勵：</Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignContent: "center",
-              mt: 2,
-            }}
-          >
-            {rewards.map((item, index) => (
-              <Typography key={index}>🎁 {item}</Typography> 
-            ))}
+export default function ResultDialog({ open, onClose, rewards }: ResultDialogProps) {
+  return (
+    <LotteryDialog
+      open={open}
+      onClose={onClose}
+      title="恭喜"
+      actions={[{ text: "確定", onClick: onClose, variantColor: "gold" }]}
+    >
+      <Typography variant="h6">您獲得了以下獎勵：</Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        {rewards.map((reward, index) => (
+          <Box key={index} sx={{ textAlign: "center", mx: 1 }}>
+            <Image src={reward.image} alt={reward.name} width={80} height={80} />
+            <Typography>{reward.name}</Typography>
           </Box>
-
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="primary">確定</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  )
+        ))}
+      </Box>
+    </LotteryDialog>
+  );
 }

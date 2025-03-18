@@ -5,7 +5,7 @@ interface sealState {
 }
 
 const initialState: sealState = {
-  sealsCollected: 0
+  sealsCollected: 5
 };
 
 const sealSlice = createSlice({

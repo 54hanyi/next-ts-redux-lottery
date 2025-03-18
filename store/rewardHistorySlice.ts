@@ -4,6 +4,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface RewardItem {
   id: string;
   name: string;
+  image: string;
 };
 
 interface rewardHistoryStates {
