@@ -218,7 +218,7 @@ export default function Home() {
   return (
     <>
       <Box
-        sx={{
+         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -226,6 +226,8 @@ export default function Home() {
           height: "100vh",
           backgroundImage: "url('/images/backgroundImg.png')",
           backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
           color: "white",
         }}
       >
