@@ -26,6 +26,7 @@ const StyledDialogTitle = styled(DialogTitle)({
 const StyledDialogContent = styled(DialogContent)({
   background: "linear-gradient(to bottom, #fffaf0, #f5e3c9)",
   minHeight: "360px",
+  maxHeight: "500px",
   textAlign: "center",
 });
 

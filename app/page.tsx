@@ -48,6 +48,7 @@ export default function Home() {
   
   const [multiRewards, setMultiRewards] = useState<{ name: string; image: string }[]>([]);
   const [drawCount, setDrawCount] = useState(1);
+  const [drawCost, setDrawCost] = useState(50);
 
   const [collectedSealReward, setCollectedSealReward] = useState<{ name: string; image: string } | null>(null); 
   const [claimedSeals, setClaimedSeals] = useState<number[]>([]);
@@ -62,21 +63,34 @@ export default function Home() {
   const singleDrawCost = 50;
   const tenDrawCost = 450;
 
+  // 打開確認視窗（根據是單抽還是十抽）
+  const openDrawConfirm = (count: number) => {
+    setDrawCount(count);
+    setDrawCost(count === 1 ? singleDrawCost : tenDrawCost); // ✅ 設定 drawCost
+
+    if (skipConfirm) {
+      handleDraw(count);
+    } else {
+      setOpenConfirm(true);
+    }
+  };
+
   //抽獎
-  const handleDraw = (count: number) => {
+  const handleDraw = (count: number, isRedraw = false) => {
     if (!skipConfirm && !openConfirm) {
       setDrawCount(count);
       setOpenConfirm(true);
       return;
     }
   
-    const cost = count === 1 ? singleDrawCost : tenDrawCost;
-    if (coupons < cost) {
-      alert("點券不足，請先儲值！");
-      return;
+    if (!isRedraw) {
+      const drawCost = count === 1 ? singleDrawCost : tenDrawCost;
+      if (coupons < drawCost) {
+        alert("點券不足，請先儲值！");
+        return;
+      }
+      dispatch(spendCoupons(drawCost));
     }
-  
-    dispatch(spendCoupons(cost));
   
     const results: { name: string; image: string }[] = [];
   
@@ -251,18 +265,18 @@ export default function Home() {
         {/* 抽獎按鈕 */}
         <Stack direction="row" sx={{ position: "absolute", bottom: 80, left: 340 }}>
           <FancyButton
-            onClick={() => handleDraw(1)}
-            disabled={coupons < singleDrawCost}
-            sx={{ mx: 4}}
+            onClick={() => openDrawConfirm(1)} // ✅ 使用 openDrawConfirm
+            disabled={coupons < 50}
+            sx={{ mx: 4 }}
           >
-            抽1次 {singleDrawCost} 點券
+            抽1次 50點券
           </FancyButton>
           <FancyButton
-            onClick={() => handleDraw(10)}
-            disabled={coupons < tenDrawCost}
-            sx={{ mx: 4}}
+            onClick={() => openDrawConfirm(10)} // ✅ 使用 openDrawConfirm
+            disabled={coupons < 450}
+            sx={{ mx: 4 }}
           >
-            抽10次 {tenDrawCost} 點券
+            抽10次 450點券
           </FancyButton>
           <FancyButton
             onClick={() => setOpenHistory(true)}
@@ -280,6 +294,7 @@ export default function Home() {
           open={openConfirm}
           onClose={() => setOpenConfirm(false)}
           onConfirm={() => handleDraw(drawCount)}
+          description={`確認花費 ${drawCost} 點券抽 ${drawCount} 次嗎？`}
         />
 
         <ResultDialog 
