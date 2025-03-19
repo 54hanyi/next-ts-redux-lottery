@@ -8,7 +8,12 @@ interface LotteryDialogProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  actions?: { text: string; onClick: () => void; variantColor?: "gold" | "blue" }[];
+  actions?: { 
+    text: string; 
+    onClick: () => void; 
+    variantColor?: "gold" | "blue"; 
+    disabled?: boolean;
+  }[];
 }
 
 // **標題樣式**
@@ -63,7 +68,7 @@ export default function LotteryDialog({ open, onClose, title, children, actions 
           <Grid2 container spacing={2} justifyContent="center">
             {actions?.map((action, index) => (
               <Grid2 key={index}>
-                <StyledButton variantColor={action.variantColor} onClick={action.onClick}>
+                <StyledButton variantColor={action.variantColor} onClick={action.onClick} disabled={action.disabled}>
                   {action.text}
                 </StyledButton>
               </Grid2>

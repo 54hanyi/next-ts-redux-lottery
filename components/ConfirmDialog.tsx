@@ -6,16 +6,22 @@ interface ConfirmDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  description?: string; // ✅ `description` 可選，讓 `children` 有更大彈性
-  children?: React.ReactNode; // ✅ 讓 `children` 可以傳入額外內容
+  storageKey: string; // "skipDrawConfirm" or "skipRedrawConfirm"
+  description?: string;
 }
 
-export default function ConfirmDialog({ open, onClose, onConfirm, description, children }: ConfirmDialogProps) {
+export default function ConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  storageKey,
+  description,
+}: ConfirmDialogProps) {
   const [dontAskAgain, setDontAskAgain] = useState(false);
 
   const handleConfirm = () => {
     if (dontAskAgain) {
-      localStorage.setItem("skipConfirm", "true");
+      localStorage.setItem(storageKey, "true");
     }
     onConfirm();
     onClose();
@@ -31,19 +37,17 @@ export default function ConfirmDialog({ open, onClose, onConfirm, description, c
         { text: "確定", onClick: handleConfirm, variantColor: "gold" },
       ]}
     >
-      {/* ✅ 若有 description，則顯示 */}
       {description && (
-        <Typography sx={{ my: 6, fontSize: 22, fontWeight: "bold", textAlign: "center" }}>
+        <Typography sx={{ my: 16, fontSize: 24, fontWeight: "bold", textAlign: "center" }}>
           {description}
         </Typography>
       )}
 
-      {/* ✅ 如果有 `children`，則顯示額外內容 */}
-      {children}
-
-      {/* ✅ 讓 Checkbox & 文字水平排列並置中 */}
       <Stack direction="row" alignItems="center" justifyContent="center" sx={{ mt: 2 }}>
-        <Checkbox checked={dontAskAgain} onChange={() => setDontAskAgain(!dontAskAgain)} />
+        <Checkbox
+          checked={dontAskAgain}
+          onChange={() => setDontAskAgain((prev) => !prev)}
+        />
         <Typography sx={{ fontWeight: "bold" }}>不再提醒</Typography>
       </Stack>
     </LotteryDialog>
