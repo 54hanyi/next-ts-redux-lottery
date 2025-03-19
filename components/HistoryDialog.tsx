@@ -119,7 +119,7 @@ export default function HistoryDialog({
                 key={reward.id}
                 component="div"
                 sx={{
-                  width: "18%", // 每行最多 5 個獎勵
+                  width: "auto", 
                   textAlign: "center",
                   display: "flex",
                   flexDirection: "column",
